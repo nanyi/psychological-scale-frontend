@@ -1,4 +1,4 @@
-# Psychological Scale 前端管理后台
+# Psychological Scale 心理测评系统 - 前端管理后台
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Vue](https://img.shields.io/badge/Vue-3.4-green)](https://vuejs.org/)
@@ -7,7 +7,7 @@
 
 ## 项目介绍
 
-Psychological Scale 前端管理后台，基于 Vue 3.4 + ElementUI 2.5 + TypeScript 构建，提供心理测评系统的管理界面，包括量表管理、用户管理、订单管理、数据分析等功能。
+Psychological Scale 心理测评系统 - 前端管理后台，基于 Vue 3.4 + ElementUI 2.5 + TypeScript 构建，提供心理测评系统的管理界面，包括量表管理、用户管理、订单管理、数据分析等功能。
 
 ## 技术架构
 
@@ -131,4 +131,4 @@ npm run lint
 
 ---
 
-*Psychological Scale 前端 - 专业的心理测评管理后台*
+*Psychological Scale 专业的心理测评管理后台*

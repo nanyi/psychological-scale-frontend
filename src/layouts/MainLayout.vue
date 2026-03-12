@@ -33,8 +33,17 @@
       <el-container>
         <el-header>
           <div class="header-right">
-            <span class="username">管理员</span>
-            <el-button type="danger" size="small">退出</el-button>
+            <el-dropdown @command="handleCommand">
+              <span class="user-info">
+                <el-icon><User /></el-icon>
+                <span class="username">{{ username }}</span>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </div>
         </el-header>
         <el-main>
@@ -47,10 +56,23 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { User } from '@element-plus/icons-vue'
 
 const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
 const activeMenu = computed(() => route.path)
+
+const username = computed(() => authStore.userInfo?.nickname || authStore.userInfo?.username || '管理员')
+
+const handleCommand = (command: string) => {
+  if (command === 'logout') {
+    authStore.logout()
+  }
+}
 </script>
 
 <style scoped>
@@ -120,6 +142,20 @@ const activeMenu = computed(() => route.path)
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--border-radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.user-info:hover {
+  background-color: var(--color-gray-100);
 }
 
 .username {

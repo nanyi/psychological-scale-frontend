@@ -1,11 +1,12 @@
 <template>
   <div class="dashboard">
-    <el-row :gutter="20">
+    <h2 class="page-title">数据驾驶舱</h2>
+    <el-row :gutter="24">
       <el-col :span="6">
-        <el-card shadow="hover">
+        <el-card shadow="hover" :body-style="{ padding: 'var(--spacing-lg)' }">
           <div class="stat-card">
-            <div class="stat-icon" style="background: #409eff">
-              <el-icon :size="30"><Document /></el-icon>
+            <div class="stat-icon" style="background: var(--color-primary-500)">
+              <el-icon :size="24"><Document /></el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-value">1,234</div>
@@ -15,10 +16,10 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="hover">
+        <el-card shadow="hover" :body-style="{ padding: 'var(--spacing-lg)' }">
           <div class="stat-card">
-            <div class="stat-icon" style="background: #67c23a">
-              <el-icon :size="30"><User /></el-icon>
+            <div class="stat-icon" style="background: var(--color-success)">
+              <el-icon :size="24"><User /></el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-value">567</div>
@@ -28,10 +29,10 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="hover">
+        <el-card shadow="hover" :body-style="{ padding: 'var(--spacing-lg)' }">
           <div class="stat-card">
-            <div class="stat-icon" style="background: #e6a23c">
-              <el-icon :size="30"><Scale /></el-icon>
+            <div class="stat-icon" style="background: var(--color-warning)">
+              <el-icon :size="24"><List /></el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-value">28</div>
@@ -41,10 +42,10 @@
         </el-card>
       </el-col>
       <el-col :span="6">
-        <el-card shadow="hover">
+        <el-card shadow="hover" :body-style="{ padding: 'var(--spacing-lg)' }">
           <div class="stat-card">
-            <div class="stat-icon" style="background: #f56c6c">
-              <el-icon :size="30"><Warning /></el-icon>
+            <div class="stat-icon" style="background: var(--color-error)">
+              <el-icon :size="24"><Warning /></el-icon>
             </div>
             <div class="stat-info">
               <div class="stat-value">12%</div>
@@ -58,24 +59,24 @@
 </template>
 
 <script setup lang="ts">
-import { Document, User, Scale, Warning } from '@element-plus/icons-vue'
+import { Document, User, List, Warning } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>
 .dashboard {
-  padding: 20px;
+  padding: 0;
 }
 
 .stat-card {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: var(--spacing-md);
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -87,14 +88,19 @@ import { Document, User, Scale, Warning } from '@element-plus/icons-vue'
 }
 
 .stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-gray-800);
 }
 
 .stat-label {
-  font-size: 14px;
-  color: #999;
-  margin-top: 5px;
+  font-size: var(--font-size-xs);
+  color: var(--color-gray-500);
+  margin-top: 2px;
+}
+
+.el-card {
+  border-radius: var(--border-radius-lg);
+  border: none;
 }
 </style>

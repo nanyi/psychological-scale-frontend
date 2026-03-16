@@ -83,8 +83,10 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getUserList, updateUserStatus, deleteUser } from '@/api/user'
+import type { UserItem } from '@/api/user'
 
 const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 
@@ -100,24 +102,21 @@ const pagination = reactive({
   total: 0
 })
 
-const tableData = ref<any[]>([])
+const tableData = ref<UserItem[]>([])
 const loading = ref(false)
 
 const loadData = async () => {
   loading.value = true
   try {
-    // TODO: 后端API完成后对接
-    // const data = await getUserList({ page: pagination.page, pageSize: pagination.pageSize, ...searchForm })
-    // tableData.value = data.records
-    // pagination.total = data.total
-    
-    // 临时模拟数据
-    tableData.value = [
-      { id: 1, username: 'admin', phone: '13800138000', email: 'admin@example.com', userType: 1, status: 1, createTime: '2024-01-01 10:00:00' },
-      { id: 2, username: '张三', phone: '13900139000', email: 'zhangsan@example.com', userType: 0, status: 1, createTime: '2024-01-15 09:30:00' },
-      { id: 3, username: '李四', phone: '13700137000', email: 'lisi@example.com', userType: 0, status: 0, createTime: '2024-01-20 14:20:00' }
-    ]
-    pagination.total = 3
+    const data = await getUserList({
+      pageNum: pagination.page,
+      pageSize: pagination.pageSize,
+      username: searchForm.username || undefined,
+      phone: searchForm.phone || undefined,
+      status: searchForm.status
+    })
+    tableData.value = data.records
+    pagination.total = data.total
   } catch (error) {
     console.error('加载用户数据失败:', error)
   } finally {
@@ -142,18 +141,17 @@ const handlePageChange = (page: number) => {
   loadData()
 }
 
-const handleEdit = (row: any) => {
-  ElMessage.info('编辑功能开发中')
+const handleEdit = (row: UserItem) => {
+  ElMessage.info(`编辑用户：${row.username}`)
 }
 
-const handleToggleStatus = async (row: any) => {
+const handleToggleStatus = async (row: UserItem) => {
   const action = row.status === 1 ? '禁用' : '启用'
   try {
     await ElMessageBox.confirm(`确定要${action}用户「${row.username}」吗？`, '提示', {
       type: 'warning'
     })
-    // TODO: 后端API完成后对接
-    // await updateUserStatus(row.id, row.status === 1 ? 0 : 1)
+    await updateUserStatus(row.id, row.status === 1 ? 0 : 1)
     ElMessage.success(`${action}成功`)
     loadData()
   } catch {
@@ -161,15 +159,14 @@ const handleToggleStatus = async (row: any) => {
   }
 }
 
-const handleDelete = async (row: any) => {
+const handleDelete = async (row: UserItem) => {
   try {
     await ElMessageBox.confirm(`确定要删除用户「${row.username}」吗？此操作不可恢复。`, '警告', {
       type: 'error',
       confirmButtonText: '删除',
       cancelButtonText: '取消'
     })
-    // TODO: 后端API完成后对接
-    // await deleteUser(row.id)
+    await deleteUser(row.id)
     ElMessage.success('删除成功')
     loadData()
   } catch {

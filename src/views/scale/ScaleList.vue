@@ -9,10 +9,10 @@
         </el-form-item>
         <el-form-item label="量表分类">
           <el-select v-model="searchForm.category" placeholder="请选择" clearable>
-            <el-option label="人格测试" value="personality" />
-            <el-option label="情绪测试" value="emotion" />
-            <el-option label="职业测试" value="career" />
-            <el-option label="心理健康" value="mental" />
+            <el-option label="人格测试" :value="1" />
+            <el-option label="情绪测试" :value="2" />
+            <el-option label="职业测试" :value="3" />
+            <el-option label="心理健康" :value="4" />
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
@@ -22,8 +22,8 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">搜索</el-button>
-          <el-button>重置</el-button>
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -33,7 +33,7 @@
         <el-button type="primary">新增量表</el-button>
       </div>
       
-      <el-table :data="tableData" stripe class="mt-md">
+      <el-table :data="tableData" stripe class="mt-md" v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="量表名称" min-width="150" />
         <el-table-column prop="category" label="分类" width="120">
@@ -42,7 +42,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="questionCount" label="题目数量" width="100" />
-        <el-table-column prop="price" label="价格(元)" width="100" />
+        <el-table-column prop="price" label="价格(元)" width="100">
+          <template #default="{ row }">
+            ¥{{ row.price?.toFixed(2) || '0.00' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
             <span :class="['tag', row.status === 1 ? 'tag-success' : 'tag-warning']">
@@ -62,23 +66,25 @@
 
       <el-pagination
         class="mt-md"
-        :current-page="pagination.page"
+        v-model:current-page="pagination.page"
         :page-size="pagination.pageSize"
         :total="pagination.total"
         layout="total, prev, pager, next"
         background
+        @current-change="handlePageChange"
       />
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
+import { getScaleList, type ScaleItem } from '@/api/scale'
 
 const searchForm = reactive({
   name: '',
-  category: '',
-  status: ''
+  category: undefined as number | undefined,
+  status: undefined as number | undefined
 })
 
 const pagination = reactive({
@@ -87,55 +93,58 @@ const pagination = reactive({
   total: 0
 })
 
-const tableData = [
-  {
-    id: 1,
-    name: 'SCL-90症状自评量表',
-    category: 'mental',
-    questionCount: 90,
-    price: 29.9,
-    status: 1,
-    createTime: '2024-01-15 10:00:00'
-  },
-  {
-    id: 2,
-    name: 'MBTI职业性格测试',
-    category: 'personality',
-    questionCount: 93,
-    price: 19.9,
-    status: 1,
-    createTime: '2024-01-10 09:30:00'
-  },
-  {
-    id: 3,
-    name: 'SDS抑郁自评量表',
-    category: 'emotion',
-    questionCount: 20,
-    price: 9.9,
-    status: 1,
-    createTime: '2024-01-08 14:20:00'
-  },
-  {
-    id: 4,
-    name: '职业价值观测试',
-    category: 'career',
-    questionCount: 60,
-    price: 15.0,
-    status: 0,
-    createTime: '2024-01-05 11:00:00'
+const tableData = ref<ScaleItem[]>([])
+const loading = ref(false)
+
+const categoryMap: Record<number, string> = {
+  1: '人格测试',
+  2: '情绪测试',
+  3: '职业测试',
+  4: '心理健康'
+}
+
+const getCategoryName = (category: number) => {
+  return categoryMap[category] || '未知'
+}
+
+const loadData = async () => {
+  loading.value = true
+  try {
+    const data = await getScaleList({
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      category: searchForm.category,
+      status: searchForm.status
+    })
+    tableData.value = data.records
+    pagination.total = data.total
+  } catch (error) {
+    console.error('加载量表数据失败:', error)
+  } finally {
+    loading.value = false
   }
-]
-
-const categoryMap: Record<string, string> = {
-  personality: '人格测试',
-  emotion: '情绪测试',
-  career: '职业测试',
-  mental: '心理健康'
 }
 
-const getCategoryName = (category: string) => {
-  return categoryMap[category] || category
+const handleSearch = () => {
+  pagination.page = 1
+  loadData()
 }
+
+const handleReset = () => {
+  searchForm.name = ''
+  searchForm.category = undefined
+  searchForm.status = undefined
+  handleSearch()
+}
+
+const handlePageChange = (page: number) => {
+  pagination.page = page
+  loadData()
+}
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>

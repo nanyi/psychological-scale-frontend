@@ -9,7 +9,7 @@
               <el-icon :size="24"><Document /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">1,234</div>
+              <div class="stat-value">{{ formatNumber(dashboardData.totalExams) }}</div>
               <div class="stat-label">总测评次数</div>
             </div>
           </div>
@@ -22,7 +22,7 @@
               <el-icon :size="24"><User /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">567</div>
+              <div class="stat-value">{{ formatNumber(dashboardData.activeUsers) }}</div>
               <div class="stat-label">活跃用户</div>
             </div>
           </div>
@@ -35,8 +35,8 @@
               <el-icon :size="24"><List /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">28</div>
-              <div class="stat-label">量表数量</div>
+              <div class="stat-value">{{ formatPercent(dashboardData.completionRate) }}</div>
+              <div class="stat-label">完成率</div>
             </div>
           </div>
         </el-card>
@@ -48,7 +48,7 @@
               <el-icon :size="24"><Warning /></el-icon>
             </div>
             <div class="stat-info">
-              <div class="stat-value">12%</div>
+              <div class="stat-value">{{ formatPercent(dashboardData.abnormalRate) }}</div>
               <div class="stat-label">异常率</div>
             </div>
           </div>
@@ -59,7 +59,40 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { Document, User, List, Warning } from '@element-plus/icons-vue'
+import { getDashboardData } from '@/api/analysis'
+
+const dashboardData = ref({
+  totalExams: 0,
+  activeUsers: 0,
+  completionRate: 0,
+  avgDuration: 0,
+  abnormalRate: 0
+})
+
+const formatNumber = (num: number) => {
+  if (!num) return '0'
+  return num.toLocaleString()
+}
+
+const formatPercent = (num: number) => {
+  if (!num) return '0%'
+  return `${(num * 100).toFixed(1)}%`
+}
+
+const loadData = async () => {
+  try {
+    const data = await getDashboardData()
+    dashboardData.value = data
+  } catch (error) {
+    console.error('加载仪表盘数据失败:', error)
+  }
+}
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>

@@ -1,45 +1,35 @@
 import request from './index'
 
 export interface DashboardData {
-  totalAssessments: number
+  totalExams: number
   activeUsers: number
-  scaleCount: number
+  completionRate: number
+  avgDuration: number
   abnormalRate: number
+  scaleRankings: ScaleUsageItem[]
+  trendData: TrendDataItem[]
+  summary: SummaryItem
 }
 
-export interface ScaleRankItem {
-  rank: number
-  name: string
-  count: number
-  percentage: string
+export interface ScaleUsageItem {
+  scaleId: number
+  scaleName: string
+  usageCount: number
+  ratio: number
 }
 
-export interface TrendData {
+export interface TrendDataItem {
   date: string
-  count: number
+  examCount: number
+  userCount: number
 }
 
-export interface AnalysisData {
-  assessmentGrowth: number
-  userGrowth: number
-  monthlyRevenue: number
-  abnormalRate: number
-  scaleRanking: ScaleRankItem[]
-  trendData: TrendData[]
+export interface SummaryItem {
+  totalRevenue: number
+  todayExams: number
+  todayUsers: number
 }
 
-export const getDashboardData = () => {
-  return request.get<DashboardData>('/analysis/dashboard')
-}
-
-export const getAnalysisData = () => {
-  return request.get<AnalysisData>('/analysis/overview')
-}
-
-export const getScaleRanking = () => {
-  return request.get<ScaleRankItem[]>('/analysis/scale-ranking')
-}
-
-export const getTrendData = (days: number = 7) => {
-  return request.get<TrendData[]>('/analysis/trend', { params: { days } })
+export const getDashboardData = (startDate?: string, endDate?: string) => {
+  return request.get<DashboardData>('/analysis/dashboard', { params: { startDate, endDate } })
 }

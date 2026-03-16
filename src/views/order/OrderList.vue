@@ -28,21 +28,21 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">搜索</el-button>
-          <el-button>重置</el-button>
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }" class="mt-md">
-      <el-table :data="tableData" stripe>
+      <el-table :data="tableData" stripe v-loading="loading">
         <el-table-column prop="orderNo" label="订单编号" width="180" />
         <el-table-column prop="userName" label="用户" width="120" />
         <el-table-column prop="phone" label="手机号" width="120" />
         <el-table-column prop="scaleName" label="量表名称" min-width="150" />
         <el-table-column prop="amount" label="金额(元)" width="100">
           <template #default="{ row }">
-            ¥{{ row.amount.toFixed(2) }}
+            ¥{{ row.amount?.toFixed(2) || '0.00' }}
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="100">
@@ -63,23 +63,25 @@
 
       <el-pagination
         class="mt-md"
-        :current-page="pagination.page"
+        v-model:current-page="pagination.page"
         :page-size="pagination.pageSize"
         :total="pagination.total"
         layout="total, prev, pager, next"
         background
+        @current-change="handlePageChange"
       />
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
+import { getOrderList, type OrderItem } from '@/api/order'
 
 const searchForm = reactive({
   orderNo: '',
   phone: '',
-  status: '',
+  status: undefined as number | undefined,
   dateRange: []
 })
 
@@ -89,35 +91,8 @@ const pagination = reactive({
   total: 0
 })
 
-const tableData = [
-  {
-    orderNo: 'ORDER202403120001',
-    userName: '张三',
-    phone: '13800138000',
-    scaleName: 'SCL-90症状自评量表',
-    amount: 29.9,
-    status: 2,
-    payTime: '2024-03-12 10:30:00'
-  },
-  {
-    orderNo: 'ORDER202403120002',
-    userName: '李四',
-    phone: '13900139000',
-    scaleName: 'MBTI职业性格测试',
-    amount: 19.9,
-    status: 1,
-    payTime: '2024-03-12 11:00:00'
-  },
-  {
-    orderNo: 'ORDER202403110001',
-    userName: '王五',
-    phone: '13700137000',
-    scaleName: 'SDS抑郁自评量表',
-    amount: 9.9,
-    status: 3,
-    payTime: '2024-03-11 15:20:00'
-  }
-]
+const tableData = ref<OrderItem[]>([])
+const loading = ref(false)
 
 const statusMap: Record<number, string> = {
   0: '待支付',
@@ -139,6 +114,47 @@ const getStatusClass = (status: number) => {
   }
   return classMap[status] || 'tag-info'
 }
+
+const loadData = async () => {
+  loading.value = true
+  try {
+    const data = await getOrderList({
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      orderNo: searchForm.orderNo || undefined,
+      phone: searchForm.phone || undefined,
+      status: searchForm.status
+    })
+    tableData.value = data.records
+    pagination.total = data.total
+  } catch (error) {
+    console.error('加载订单数据失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleSearch = () => {
+  pagination.page = 1
+  loadData()
+}
+
+const handleReset = () => {
+  searchForm.orderNo = ''
+  searchForm.phone = ''
+  searchForm.status = undefined
+  searchForm.dateRange = []
+  handleSearch()
+}
+
+const handlePageChange = (page: number) => {
+  pagination.page = page
+  loadData()
+}
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>

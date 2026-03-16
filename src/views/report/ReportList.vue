@@ -21,14 +21,14 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">搜索</el-button>
-          <el-button>重置</el-button>
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }" class="mt-md">
-      <el-table :data="tableData" stripe>
+      <el-table :data="tableData" stripe v-loading="loading">
         <el-table-column prop="reportNo" label="报告编号" width="180" />
         <el-table-column prop="userName" label="用户" width="100" />
         <el-table-column prop="scaleName" label="量表名称" min-width="150" />
@@ -36,7 +36,7 @@
         <el-table-column prop="level" label="等级" width="80">
           <template #default="{ row }">
             <span :class="['tag', getLevelClass(row.level)]">
-              {{ row.level }}
+              {{ row.level || '-' }}
             </span>
           </template>
         </el-table-column>
@@ -59,24 +59,26 @@
 
       <el-pagination
         class="mt-md"
-        :current-page="pagination.page"
+        v-model:current-page="pagination.page"
         :page-size="pagination.pageSize"
         :total="pagination.total"
         layout="total, prev, pager, next"
         background
+        @current-change="handlePageChange"
       />
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
+import { getReportList, type ReportItem } from '@/api/report'
 
 const searchForm = reactive({
   reportNo: '',
   userName: '',
   scaleName: '',
-  status: ''
+  status: undefined as number | undefined
 })
 
 const pagination = reactive({
@@ -85,44 +87,8 @@ const pagination = reactive({
   total: 0
 })
 
-const tableData = [
-  {
-    reportNo: 'RPT202403120001',
-    userName: '张三',
-    scaleName: 'SCL-90症状自评量表',
-    score: 156,
-    level: '正常',
-    status: 1,
-    createTime: '2024-03-12 10:30:00'
-  },
-  {
-    reportNo: 'RPT202403120002',
-    userName: '李四',
-    scaleName: 'MBTI职业性格测试',
-    score: 0,
-    level: 'INTJ',
-    status: 1,
-    createTime: '2024-03-12 11:00:00'
-  },
-  {
-    reportNo: 'RPT202403110001',
-    userName: '王五',
-    scaleName: 'SDS抑郁自评量表',
-    score: 45,
-    level: '轻度抑郁',
-    status: 1,
-    createTime: '2024-03-11 15:20:00'
-  },
-  {
-    reportNo: 'RPT202403100001',
-    userName: '赵六',
-    scaleName: '职业价值观测试',
-    score: 0,
-    level: '-',
-    status: 2,
-    createTime: '2024-03-10 09:00:00'
-  }
-]
+const tableData = ref<ReportItem[]>([])
+const loading = ref(false)
 
 const getStatusName = (status: number) => {
   const map: Record<number, string> = { 0: '生成中', 1: '已完成', 2: '生成失败' }
@@ -139,10 +105,50 @@ const getStatusClass = (status: number) => {
 }
 
 const getLevelClass = (level: string) => {
+  if (!level) return 'tag-info'
   if (level === '正常' || level === 'INTJ') return 'tag-success'
   if (level.includes('抑郁') || level.includes('焦虑')) return 'tag-warning'
   return 'tag-info'
 }
+
+const loadData = async () => {
+  loading.value = true
+  try {
+    const data = await getReportList({
+      page: pagination.page,
+      pageSize: pagination.pageSize,
+      status: searchForm.status
+    })
+    tableData.value = data.records
+    pagination.total = data.total
+  } catch (error) {
+    console.error('加载报告数据失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleSearch = () => {
+  pagination.page = 1
+  loadData()
+}
+
+const handleReset = () => {
+  searchForm.reportNo = ''
+  searchForm.userName = ''
+  searchForm.scaleName = ''
+  searchForm.status = undefined
+  handleSearch()
+}
+
+const handlePageChange = (page: number) => {
+  pagination.page = page
+  loadData()
+}
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>

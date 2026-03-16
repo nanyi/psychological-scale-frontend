@@ -41,7 +41,7 @@ export interface PageResult<T> {
 }
 
 export const login = (data: LoginRequest) => {
-  return request.post<LoginResponse>('/user/login', data)
+  return request.post<LoginResponse>('/auth/login', data)
 }
 
 export const getUserList = (params: PageRequest & { name?: string; phone?: string; status?: number }) => {

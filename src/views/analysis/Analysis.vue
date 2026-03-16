@@ -91,15 +91,49 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { TrendCharts, User, Coin, Warning, DataAnalysis } from '@element-plus/icons-vue'
+import { getDashboardData, type DashboardData } from '@/api/analysis'
 
-const scaleRankData = [
-  { rank: 1, name: 'SCL-90症状自评量表', count: 456, percentage: '28%' },
-  { rank: 2, name: 'MBTI职业性格测试', count: 389, percentage: '24%' },
-  { rank: 3, name: 'SDS抑郁自评量表', count: 267, percentage: '16%' },
-  { rank: 4, name: '职业价值观测试', count: 198, percentage: '12%' },
-  { rank: 5, name: 'SAS焦虑自评量表', count: 156, percentage: '10%' }
-]
+const loading = ref(false)
+const dashboardData = ref<DashboardData | null>(null)
+
+const scaleRankData = ref<{ rank: number; name: string; count: number; percentage: string }[]>([])
+
+const formatNumber = (num: number) => {
+  if (!num) return '0'
+  return num.toLocaleString()
+}
+
+const formatPercent = (num: number) => {
+  if (!num) return '0%'
+  return `${(num * 100).toFixed(1)}%`
+}
+
+const loadData = async () => {
+  loading.value = true
+  try {
+    const data = await getDashboardData()
+    dashboardData.value = data
+    
+    if (data.scaleRankings && data.scaleRankings.length > 0) {
+      scaleRankData.value = data.scaleRankings.map((item, index) => ({
+        rank: index + 1,
+        name: item.scaleName,
+        count: item.usageCount,
+        percentage: `${(item.ratio * 100).toFixed(0)}%`
+      }))
+    }
+  } catch (error) {
+    console.error('加载分析数据失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>

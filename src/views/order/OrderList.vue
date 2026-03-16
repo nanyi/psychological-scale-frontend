@@ -55,8 +55,8 @@
         <el-table-column prop="payTime" label="支付时间" width="180" />
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link>详情</el-button>
-            <el-button v-if="row.status === 1" type="danger" link>退款</el-button>
+            <el-button type="primary" link @click="handleDetail(row)">详情</el-button>
+            <el-button v-if="row.status === 1" type="danger" link @click="handleRefund(row)">退款</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -77,6 +77,7 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
 import { getOrderList, type OrderItem } from '@/api/order'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const searchForm = reactive({
   orderNo: '',
@@ -150,6 +151,24 @@ const handleReset = () => {
 const handlePageChange = (page: number) => {
   pagination.page = page
   loadData()
+}
+
+const handleDetail = (row: OrderItem) => {
+  ElMessage.info(`订单详情：${row.orderNo}`)
+}
+
+const handleRefund = async (row: OrderItem) => {
+  try {
+    await ElMessageBox.confirm(`确定要退款订单「${row.orderNo}」吗？`, '提示', {
+      type: 'warning'
+    })
+    // TODO: 后端API完成后对接
+    // await refundOrder(row.id, '管理员操作退款')
+    ElMessage.success('退款成功')
+    loadData()
+  } catch {
+    // 用户取消
+  }
 }
 
 onMounted(() => {

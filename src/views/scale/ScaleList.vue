@@ -57,9 +57,9 @@
         <el-table-column prop="createTime" label="创建时间" width="180" />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link>编辑</el-button>
-            <el-button type="primary" link>题目</el-button>
-            <el-button type="danger" link>删除</el-button>
+            <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+            <el-button type="primary" link @click="handleQuestions(row)">题目</el-button>
+            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -80,6 +80,7 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
 import { getScaleList, type ScaleItem } from '@/api/scale'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const searchForm = reactive({
   name: '',
@@ -140,6 +141,30 @@ const handleReset = () => {
 const handlePageChange = (page: number) => {
   pagination.page = page
   loadData()
+}
+
+const handleEdit = (row: ScaleItem) => {
+  ElMessage.info(`编辑量表：${row.name}`)
+}
+
+const handleQuestions = (row: ScaleItem) => {
+  ElMessage.info(`管理题目：${row.name}`)
+}
+
+const handleDelete = async (row: ScaleItem) => {
+  try {
+    await ElMessageBox.confirm(`确定要删除量表「${row.name}」吗？`, '警告', {
+      type: 'error',
+      confirmButtonText: '删除',
+      cancelButtonText: '取消'
+    })
+    // TODO: 后端API完成后对接
+    // await deleteScale(row.id)
+    ElMessage.success('删除成功')
+    loadData()
+  } catch {
+    // 用户取消
+  }
 }
 
 onMounted(() => {

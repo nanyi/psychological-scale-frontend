@@ -50,9 +50,9 @@
         <el-table-column prop="createTime" label="测评时间" width="180" />
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link>查看</el-button>
-            <el-button type="primary" link>下载</el-button>
-            <el-button type="danger" link>删除</el-button>
+            <el-button type="primary" link @click="handleView(row)">查看</el-button>
+            <el-button type="primary" link @click="handleDownload(row)">下载</el-button>
+            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -73,6 +73,7 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
 import { getReportList, type ReportItem } from '@/api/report'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const searchForm = reactive({
   reportNo: '',
@@ -144,6 +145,32 @@ const handleReset = () => {
 const handlePageChange = (page: number) => {
   pagination.page = page
   loadData()
+}
+
+const handleView = (row: ReportItem) => {
+  ElMessage.info(`查看报告：${row.reportNo}`)
+}
+
+const handleDownload = async (row: ReportItem) => {
+  ElMessage.info(`下载报告：${row.reportNo}`)
+  // TODO: 后端API完成后对接
+  // await downloadReport(row.id)
+}
+
+const handleDelete = async (row: ReportItem) => {
+  try {
+    await ElMessageBox.confirm(`确定要删除报告「${row.reportNo}」吗？`, '警告', {
+      type: 'error',
+      confirmButtonText: '删除',
+      cancelButtonText: '取消'
+    })
+    // TODO: 后端API完成后对接
+    // await deleteReport(row.id)
+    ElMessage.success('删除成功')
+    loadData()
+  } catch {
+    // 用户取消
+  }
 }
 
 onMounted(() => {

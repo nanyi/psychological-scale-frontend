@@ -17,8 +17,8 @@
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">搜索</el-button>
-          <el-button>重置</el-button>
+          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -29,20 +29,20 @@
         <el-button>导出</el-button>
       </div>
       
-      <el-table :data="tableData" stripe>
+      <el-table :data="tableData" stripe v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="avatar" label="头像" width="80">
           <template #default="{ row }">
-            <el-avatar :size="40" :src="row.avatar" />
+            <el-avatar :size="40" :src="row.avatar || defaultAvatar" />
           </template>
         </el-table-column>
-        <el-table-column prop="name" label="用户名" width="120" />
+        <el-table-column prop="username" label="用户名" width="120" />
         <el-table-column prop="phone" label="手机号" width="130" />
         <el-table-column prop="email" label="邮箱" min-width="150" />
-        <el-table-column prop="role" label="角色" width="100">
+        <el-table-column prop="userType" label="角色" width="100">
           <template #default="{ row }">
-            <span :class="['tag', row.role === 'admin' ? 'tag-info' : 'tag-success']">
-              {{ row.role === 'admin' ? '管理员' : '普通用户' }}
+            <span :class="['tag', row.userType === 1 ? 'tag-info' : 'tag-success']">
+              {{ row.userType === 1 ? '管理员' : '普通用户' }}
             </span>
           </template>
         </el-table-column>
@@ -56,34 +56,42 @@
         <el-table-column prop="createTime" label="注册时间" width="180" />
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" link>编辑</el-button>
-            <el-button :type="row.status === 1 ? 'warning' : 'success'" link>
+            <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
+            <el-button 
+              :type="row.status === 1 ? 'warning' : 'success'" 
+              link 
+              @click="handleToggleStatus(row)"
+            >
               {{ row.status === 1 ? '禁用' : '启用' }}
             </el-button>
-            <el-button type="danger" link>删除</el-button>
+            <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
 
       <el-pagination
         class="mt-md"
-        :current-page="pagination.page"
+        v-model:current-page="pagination.page"
         :page-size="pagination.pageSize"
         :total="pagination.total"
         layout="total, prev, pager, next"
         background
+        @current-change="handlePageChange"
       />
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+
+const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 
 const searchForm = reactive({
-  name: '',
+  username: '',
   phone: '',
-  status: ''
+  status: undefined as number | undefined
 })
 
 const pagination = reactive({
@@ -92,38 +100,85 @@ const pagination = reactive({
   total: 0
 })
 
-const tableData = [
-  {
-    id: 1,
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-    name: '管理员',
-    phone: '13800138000',
-    email: 'admin@example.com',
-    role: 'admin',
-    status: 1,
-    createTime: '2024-01-01 10:00:00'
-  },
-  {
-    id: 2,
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-    name: '张三',
-    phone: '13900139000',
-    email: 'zhangsan@example.com',
-    role: 'user',
-    status: 1,
-    createTime: '2024-01-15 09:30:00'
-  },
-  {
-    id: 3,
-    avatar: 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-    name: '李四',
-    phone: '13700137000',
-    email: 'lisi@example.com',
-    role: 'user',
-    status: 0,
-    createTime: '2024-01-20 14:20:00'
+const tableData = ref<any[]>([])
+const loading = ref(false)
+
+const loadData = async () => {
+  loading.value = true
+  try {
+    // TODO: 后端API完成后对接
+    // const data = await getUserList({ page: pagination.page, pageSize: pagination.pageSize, ...searchForm })
+    // tableData.value = data.records
+    // pagination.total = data.total
+    
+    // 临时模拟数据
+    tableData.value = [
+      { id: 1, username: 'admin', phone: '13800138000', email: 'admin@example.com', userType: 1, status: 1, createTime: '2024-01-01 10:00:00' },
+      { id: 2, username: '张三', phone: '13900139000', email: 'zhangsan@example.com', userType: 0, status: 1, createTime: '2024-01-15 09:30:00' },
+      { id: 3, username: '李四', phone: '13700137000', email: 'lisi@example.com', userType: 0, status: 0, createTime: '2024-01-20 14:20:00' }
+    ]
+    pagination.total = 3
+  } catch (error) {
+    console.error('加载用户数据失败:', error)
+  } finally {
+    loading.value = false
   }
-]
+}
+
+const handleSearch = () => {
+  pagination.page = 1
+  loadData()
+}
+
+const handleReset = () => {
+  searchForm.username = ''
+  searchForm.phone = ''
+  searchForm.status = undefined
+  handleSearch()
+}
+
+const handlePageChange = (page: number) => {
+  pagination.page = page
+  loadData()
+}
+
+const handleEdit = (row: any) => {
+  ElMessage.info('编辑功能开发中')
+}
+
+const handleToggleStatus = async (row: any) => {
+  const action = row.status === 1 ? '禁用' : '启用'
+  try {
+    await ElMessageBox.confirm(`确定要${action}用户「${row.username}」吗？`, '提示', {
+      type: 'warning'
+    })
+    // TODO: 后端API完成后对接
+    // await updateUserStatus(row.id, row.status === 1 ? 0 : 1)
+    ElMessage.success(`${action}成功`)
+    loadData()
+  } catch {
+    // 用户取消
+  }
+}
+
+const handleDelete = async (row: any) => {
+  try {
+    await ElMessageBox.confirm(`确定要删除用户「${row.username}」吗？此操作不可恢复。`, '警告', {
+      type: 'error',
+      confirmButtonText: '删除',
+      cancelButtonText: '取消'
+    })
+    // TODO: 后端API完成后对接
+    // await deleteUser(row.id)
+    ElMessage.success('删除成功')
+    loadData()
+  } catch {
+    // 用户取消
+  }
+}
+
+// 初始加载
+loadData()
 </script>
 
 <style scoped>

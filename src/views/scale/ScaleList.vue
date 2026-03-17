@@ -1,14 +1,14 @@
 <template>
   <div class="scale-list">
     <h2 class="page-title">量表管理</h2>
-    
+
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }">
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="量表名称">
           <el-input v-model="searchForm.name" placeholder="请输入量表名称" clearable />
         </el-form-item>
         <el-form-item label="量表分类">
-          <el-select v-model="searchForm.categoryId" placeholder="请选择" clearable>
+          <el-select v-model="searchForm.categoryId" style="min-width: 100px" placeholder="请选择" clearable>
             <el-option
               v-for="cat in categoryList"
               :key="cat.id"
@@ -18,7 +18,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择" clearable>
+          <el-select v-model="searchForm.status" style="min-width: 100px" placeholder="请选择" clearable>
             <el-option label="上架" :value="1" />
             <el-option label="下架" :value="0" />
           </el-select>
@@ -34,7 +34,7 @@
       <div class="table-toolbar">
         <el-button type="primary">新增量表</el-button>
       </div>
-      
+
       <el-table :data="tableData" stripe class="mt-md" v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="scaleName" label="量表名称" min-width="150" />

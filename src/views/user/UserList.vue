@@ -1,7 +1,7 @@
 <template>
   <div class="user-list">
     <h2 class="page-title">用户管理</h2>
-    
+
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }">
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="用户名">
@@ -11,7 +11,7 @@
           <el-input v-model="searchForm.phone" placeholder="请输入手机号" clearable />
         </el-form-item>
         <el-form-item label="用户状态">
-          <el-select v-model="searchForm.status" placeholder="请选择" clearable>
+          <el-select v-model="searchForm.status" style="min-width: 100px" placeholder="请选择" clearable>
             <el-option label="正常" :value="1" />
             <el-option label="禁用" :value="0" />
           </el-select>
@@ -28,7 +28,7 @@
         <el-button type="primary" @click="handleAdd">新增用户</el-button>
         <el-button @click="handleExport">导出</el-button>
       </div>
-      
+
       <el-table :data="tableData" stripe v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="avatar" label="头像" width="80">
@@ -58,9 +58,9 @@
         <el-table-column label="操作" width="150" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
-            <el-button 
-              :type="row.status === 1 ? 'warning' : 'success'" 
-              link 
+            <el-button
+              :type="row.status === 1 ? 'warning' : 'success'"
+              link
               @click="handleToggleStatus(row)"
             >
               {{ row.status === 1 ? '禁用' : '启用' }}
@@ -237,7 +237,7 @@ const handleEdit = (row: UserItem) => {
 
 const handleSubmit = async () => {
   await formRef.value?.validate()
-  
+
   submitLoading.value = true
   try {
     if (isEdit.value && editId.value) {
@@ -265,7 +265,7 @@ const handleSubmit = async () => {
     dialogVisible.value = false
     loadData()
   } catch (error: any) {
-    ElMessage.error(error.message || '操作失败')
+    // ElMessage.error(error.message || '操作失败')
   } finally {
     submitLoading.value = false
   }

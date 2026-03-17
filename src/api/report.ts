@@ -1,4 +1,4 @@
-import request from './index'
+import request from '@/utils/request'
 import type { PageRequest, PageResult } from './user'
 
 export interface ReportItem {

@@ -64,6 +64,10 @@ const routes: RouteRecordRaw[] = [
         name: 'Analysis',
         component: () => import('@/views/analysis/Analysis.vue'),
         meta: { title: '数据分析' }
+      },
+      {
+        path: '/:pathMatch(.*)*',
+        redirect: '/dashboard'
       }
     ]
   }
@@ -77,10 +81,19 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   authStore.initFromStorage()
-  
+
+  console.log('authStore.isLoggedIn:', authStore.isLoggedIn)
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
     next('/login')
   } else if (to.path === '/login' && authStore.isLoggedIn) {
+    next('/dashboard')
+  } else if (to.path === '/') {
+    next('/dashboard')
+  } else if (to.path === '/' && authStore.isLoggedIn) {
+    next('/dashboard')
+  } else if (to.path === '/' && !authStore.isLoggedIn) {
+    next('/login')
+  } else if (to.matched.length === 0) {
     next('/dashboard')
   } else {
     next()

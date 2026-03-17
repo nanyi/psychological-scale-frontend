@@ -38,12 +38,40 @@ service.interceptors.response.use(
   },
   (error) => {
     console.error('Response error:', error)
-    const message = error.response?.data?.message || error.message || '网络错误'
-    ElMessage.error(message)
-    if (error.response?.status === 401) {
-      localStorage.removeItem('admin_token')
-      router.push('/login')
+    let message = '网络错误'
+    
+    if (error.response) {
+      const { status, data } = error.response
+      if (data && data.message) {
+        message = data.message
+      } else {
+        switch (status) {
+          case 400:
+            message = '请求参数错误'
+            break
+          case 401:
+            message = '登录已过期，请重新登录'
+            localStorage.removeItem('admin_token')
+            router.push('/login')
+            break
+          case 403:
+            message = '没有操作权限'
+            break
+          case 404:
+            message = '请求的资源不存在'
+            break
+          case 500:
+            message = '服务器内部错误'
+            break
+          default:
+            message = `请求失败 (${status})`
+        }
+      }
+    } else if (error.request) {
+      message = '网络连接失败，请检查网络'
     }
+    
+    ElMessage.error(message)
     return Promise.reject(error)
   }
 )

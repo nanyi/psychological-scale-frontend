@@ -5,7 +5,7 @@
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }">
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="用户名">
-          <el-input v-model="searchForm.name" placeholder="请输入用户名" clearable />
+          <el-input v-model="searchForm.username" placeholder="请输入用户名" clearable />
         </el-form-item>
         <el-form-item label="手机号">
           <el-input v-model="searchForm.phone" placeholder="请输入手机号" clearable />

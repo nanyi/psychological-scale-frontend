@@ -3,9 +3,9 @@ import type { PageRequest, PageResult } from './user'
 
 export interface ScaleItem {
   id: number
-  name: string
-  code: string
-  category: number
+  scaleName: string
+  scaleCode: string
+  categoryId: number
   categoryName: string
   description: string
   questionCount: number
@@ -17,11 +17,11 @@ export interface ScaleItem {
   updateTime: string
 }
 
-export const getScaleList = (params: PageRequest & { category?: number; status?: number }) => {
+export const getScaleList = (params: PageRequest & { categoryId?: number; status?: number }) => {
   return request.get<PageResult<ScaleItem>>('/scale/list', { params })
 }
 
-export const getScalePage = (data: PageRequest & { category?: number; status?: number; name?: string }) => {
+export const getScalePage = (data: PageRequest & { categoryId?: number; status?: number; name?: string }) => {
   return request.post<PageResult<ScaleItem>>('/scale/page', data)
 }
 

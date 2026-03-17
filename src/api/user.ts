@@ -29,18 +29,21 @@ export interface UserItem {
 }
 
 export interface PageRequest {
-  pageNum: number
-  pageSize: number
+  current: number
+  size: number
 }
 
 export interface PageResult<T> {
   records: T[]
   total: number
-  pageNum: number
-  pageSize: number
 }
 
-export const login = (data: LoginRequest) => {
+export interface LoginParams {
+  username: string
+  password: string
+}
+
+export const login = (data: LoginParams) => {
   return request.post<LoginResponse>('/auth/login', data)
 }
 

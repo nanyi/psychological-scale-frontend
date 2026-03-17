@@ -63,8 +63,8 @@
 
       <el-pagination
         class="mt-md"
-        v-model:current-page="pagination.page"
-        :page-size="pagination.pageSize"
+        v-model:current-page="pagination.current"
+        :page-size="pagination.size"
         :total="pagination.total"
         layout="total, prev, pager, next"
         background
@@ -87,8 +87,8 @@ const searchForm = reactive({
 })
 
 const pagination = reactive({
-  page: 1,
-  pageSize: 10,
+  current: 1,
+  size: 10,
   total: 0
 })
 
@@ -120,8 +120,8 @@ const loadData = async () => {
   loading.value = true
   try {
     const data = await getOrderList({
-      page: pagination.page,
-      pageSize: pagination.pageSize,
+      current: pagination.current,
+      size: pagination.size,
       orderNo: searchForm.orderNo || undefined,
       phone: searchForm.phone || undefined,
       status: searchForm.status
@@ -136,7 +136,7 @@ const loadData = async () => {
 }
 
 const handleSearch = () => {
-  pagination.page = 1
+  pagination.current = 1
   loadData()
 }
 
@@ -149,7 +149,7 @@ const handleReset = () => {
 }
 
 const handlePageChange = (page: number) => {
-  pagination.page = page
+  pagination.current = page
   loadData()
 }
 

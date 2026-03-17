@@ -30,6 +30,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '量表管理' }
       },
       {
+        path: 'scale/category',
+        name: 'ScaleCategory',
+        component: () => import('@/views/scale/ScaleCategoryList.vue'),
+        meta: { title: '分类管理' }
+      },
+      {
         path: 'scale/:id',
         name: 'ScaleDetail',
         component: () => import('@/views/scale/ScaleDetail.vue'),

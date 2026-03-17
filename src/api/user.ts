@@ -66,3 +66,17 @@ export const updateUserStatus = (id: number, status: number) => {
 export const deleteUser = (id: number) => {
   return request.post<void>(`/user/delete/${id}`)
 }
+
+export interface UserCreateRequest {
+  username: string
+  password: string
+  nickname?: string
+  phone?: string
+  email?: string
+  userType?: number
+  status?: number
+}
+
+export const createUser = (data: UserCreateRequest) => {
+  return request.post<void>('/user/register', data)
+}

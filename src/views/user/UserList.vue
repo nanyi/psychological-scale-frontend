@@ -25,8 +25,8 @@
 
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }" class="mt-md">
       <div class="table-toolbar">
-        <el-button type="primary">新增用户</el-button>
-        <el-button>导出</el-button>
+        <el-button type="primary" @click="handleAdd">新增用户</el-button>
+        <el-button @click="handleExport">导出</el-button>
       </div>
       
       <el-table :data="tableData" stripe v-loading="loading">
@@ -37,6 +37,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="username" label="用户名" width="120" />
+        <el-table-column prop="nickname" label="昵称" width="120" />
         <el-table-column prop="phone" label="手机号" width="130" />
         <el-table-column prop="email" label="邮箱" min-width="150" />
         <el-table-column prop="userType" label="角色" width="100">
@@ -79,14 +80,55 @@
         @current-change="handlePageChange"
       />
     </el-card>
+
+    <!-- 新增/编辑用户对话框 -->
+    <el-dialog
+      v-model="dialogVisible"
+      :title="dialogTitle"
+      width="500px"
+      destroy-on-close
+    >
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="form.username" placeholder="请输入用户名" :disabled="isEdit" />
+        </el-form-item>
+        <el-form-item v-if="!isEdit" label="密码" prop="password">
+          <el-input v-model="form.password" type="password" placeholder="请输入密码" show-password />
+        </el-form-item>
+        <el-form-item label="昵称" prop="nickname">
+          <el-input v-model="form.nickname" placeholder="请输入昵称" />
+        </el-form-item>
+        <el-form-item label="手机号" prop="phone">
+          <el-input v-model="form.phone" placeholder="请输入手机号" />
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="form.email" placeholder="请输入邮箱" />
+        </el-form-item>
+        <el-form-item label="角色" prop="userType">
+          <el-select v-model="form.userType" placeholder="请选择角色">
+            <el-option label="普通用户" :value="2" />
+            <el-option label="管理员" :value="1" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="isEdit" label="状态" prop="status">
+          <el-radio-group v-model="form.status">
+            <el-radio :value="1">正常</el-radio>
+            <el-radio :value="0">禁用</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="submitLoading">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { getUserList, updateUserStatus, deleteUser } from '@/api/user'
-import type { UserItem } from '@/api/user'
+import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
+import { getUserList, updateUser, updateUserStatus, deleteUser, createUser, type UserItem } from '@/api/user'
 
 const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 
@@ -104,6 +146,31 @@ const pagination = reactive({
 
 const tableData = ref<UserItem[]>([])
 const loading = ref(false)
+
+// 对话框
+const dialogVisible = ref(false)
+const dialogTitle = ref('')
+const isEdit = ref(false)
+const editId = ref<number>()
+const formRef = ref<FormInstance>()
+const submitLoading = ref(false)
+
+const form = reactive({
+  username: '',
+  password: '',
+  nickname: '',
+  phone: '',
+  email: '',
+  userType: 2,
+  status: 1
+})
+
+const rules = {
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur', min: 6 }],
+  phone: [{ pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }],
+  email: [{ type: 'email', message: '邮箱格式不正确', trigger: 'blur' }]
+}
 
 const loadData = async () => {
   loading.value = true
@@ -141,8 +208,67 @@ const handlePageChange = (page: number) => {
   loadData()
 }
 
+const handleAdd = () => {
+  dialogTitle.value = '新增用户'
+  isEdit.value = false
+  editId.value = undefined
+  form.username = ''
+  form.password = ''
+  form.nickname = ''
+  form.phone = ''
+  form.email = ''
+  form.userType = 2
+  form.status = 1
+  dialogVisible.value = true
+}
+
 const handleEdit = (row: UserItem) => {
-  ElMessage.info(`编辑用户：${row.username}`)
+  dialogTitle.value = '编辑用户'
+  isEdit.value = true
+  editId.value = row.id
+  form.username = row.username
+  form.nickname = row.nickname || ''
+  form.phone = row.phone || ''
+  form.email = row.email || ''
+  form.userType = row.userType
+  form.status = row.status
+  dialogVisible.value = true
+}
+
+const handleSubmit = async () => {
+  await formRef.value?.validate()
+  
+  submitLoading.value = true
+  try {
+    if (isEdit.value && editId.value) {
+      await updateUser(editId.value, {
+        username: form.username,
+        nickname: form.nickname,
+        phone: form.phone,
+        email: form.email,
+        userType: form.userType,
+        status: form.status
+      })
+      ElMessage.success('更新成功')
+    } else {
+      await createUser({
+        username: form.username,
+        password: form.password,
+        nickname: form.nickname,
+        phone: form.phone,
+        email: form.email,
+        userType: form.userType,
+        status: 1
+      })
+      ElMessage.success('创建成功')
+    }
+    dialogVisible.value = false
+    loadData()
+  } catch (error: any) {
+    ElMessage.error(error.message || '操作失败')
+  } finally {
+    submitLoading.value = false
+  }
 }
 
 const handleToggleStatus = async (row: UserItem) => {
@@ -174,7 +300,10 @@ const handleDelete = async (row: UserItem) => {
   }
 }
 
-// 初始加载
+const handleExport = () => {
+  ElMessage.info('导出功能开发中')
+}
+
 loadData()
 </script>
 

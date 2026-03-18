@@ -11,7 +11,7 @@
           <el-input v-model="searchForm.phone" placeholder="请输入用户手机" clearable />
         </el-form-item>
         <el-form-item label="订单状态">
-          <el-select v-model="searchForm.status" placeholder="请选择" clearable>
+          <el-select v-model="searchForm.status" style="min-width: 100px;" placeholder="请选择" clearable>
             <el-option label="待支付" :value="0" />
             <el-option label="已支付" :value="1" />
             <el-option label="已完成" :value="2" />

@@ -1,7 +1,7 @@
 <template>
   <div class="report-list">
     <h2 class="page-title">报告管理</h2>
-    
+
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }">
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="报告编号">
@@ -14,7 +14,7 @@
           <el-input v-model="searchForm.scaleName" placeholder="请输入量表名称" clearable />
         </el-form-item>
         <el-form-item label="报告状态">
-          <el-select v-model="searchForm.status" placeholder="请选择" clearable>
+          <el-select v-model="searchForm.status" style="min-width: 100px;" placeholder="请选择" clearable>
             <el-option label="生成中" :value="0" />
             <el-option label="已完成" :value="1" />
             <el-option label="生成失败" :value="2" />

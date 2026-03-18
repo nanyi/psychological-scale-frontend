@@ -138,7 +138,7 @@ const handleCommand = (command: string) => {
 }
 
 .el-menu-item {
-  color: var(--color-gray-300);
+  color: #E5E7EB;
   height: 48px;
   line-height: 48px;
   margin: 4px 8px;
@@ -146,7 +146,8 @@ const handleCommand = (command: string) => {
 }
 
 .el-sub-menu__title {
-  color: var(--color-gray-200) !important;
+  color: #FFFFFF !important;
+  font-weight: 500;
 }
 
 .el-sub-menu__title:hover {

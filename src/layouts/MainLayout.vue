@@ -138,11 +138,20 @@ const handleCommand = (command: string) => {
 }
 
 .el-menu-item {
-  color: var(--color-gray-400);
+  color: var(--color-gray-300);
   height: 48px;
   line-height: 48px;
   margin: 4px 8px;
   border-radius: var(--border-radius-md);
+}
+
+.el-sub-menu__title {
+  color: var(--color-gray-200) !important;
+}
+
+.el-sub-menu__title:hover {
+  background-color: var(--color-gray-700) !important;
+  color: #fff !important;
 }
 
 .el-menu-item:hover {

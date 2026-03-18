@@ -1,12 +1,12 @@
 <template>
   <div class="scale-category">
     <h2 class="page-title">量表分类管理</h2>
-    
+
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }">
       <div class="table-toolbar">
         <el-button type="primary" @click="handleAdd">新增分类</el-button>
       </div>
-      
+
       <el-table :data="tableData" stripe v-loading="loading" row-key="id" :tree-props="{ children: 'children' }">
         <el-table-column prop="categoryName" label="分类名称" min-width="150" />
         <el-table-column prop="sortOrder" label="排序" width="80" />
@@ -23,9 +23,9 @@
           <template #default="{ row }">
             <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
             <el-button type="primary" link @click="handleAddChild(row)">添加子分类</el-button>
-            <el-button 
-              :type="row.status === 1 ? 'warning' : 'success'" 
-              link 
+            <el-button
+              :type="row.status === 1 ? 'warning' : 'success'"
+              link
               @click="handleToggleStatus(row)"
             >
               {{ row.status === 1 ? '禁用' : '启用' }}
@@ -80,7 +80,7 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
-import { getCategoryTree, getCategoryAll, createCategory, updateCategory, deleteCategory, type ScaleCategory } from '@/api/scaleCategory'
+import { getCategoryTree, getCategoryAll, createCategory, updateCategory, deleteCategory, enableCategory, disableCategory, type ScaleCategory } from '@/api/scaleCategory'
 
 const loading = ref(false)
 const tableData = ref<ScaleCategory[]>([])
@@ -165,7 +165,7 @@ const handleEdit = (row: ScaleCategory) => {
 
 const handleSubmit = async () => {
   await formRef.value?.validate()
-  
+
   try {
     if (isEdit.value && editId.value) {
       await updateCategory(editId.value, form)
@@ -187,7 +187,7 @@ const handleToggleStatus = async (row: ScaleCategory) => {
     await ElMessageBox.confirm(`确定要${action}分类「${row.categoryName}」吗？`, '提示', {
       type: 'warning'
     })
-    await updateCategory(row.id, { status: row.status === 1 ? 0 : 1 })
+    await (row.status === 1 ? disableCategory(row.id) : enableCategory(row.id))
     ElMessage.success(`${action}成功`)
     loadData()
   } catch {

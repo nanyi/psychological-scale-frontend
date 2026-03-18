@@ -30,3 +30,11 @@ export const updateCategory = (id: number, data: Partial<ScaleCategory>) => {
 export const deleteCategory = (id: number) => {
   return request.delete(`/scale-category/delete/${id}`)
 }
+
+export const enableCategory = (id: number) => {
+  return request.put(`/scale-category/enable/${id}`)
+}
+
+export const disableCategory = (id: number) => {
+  return request.put(`/scale-category/disable/${id}`)
+}

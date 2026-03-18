@@ -48,9 +48,9 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '题目管理' }
       },
       {
-        path: 'scale/exam',
+        path: 'scale/exam-records',
         name: 'ExamList',
-        component: () => import('@/views/scale/ExamList.vue'),
+        component: () => import('@/views/scale/ExamRecordList.vue'),
         meta: { title: '测评记录' }
       },
       {

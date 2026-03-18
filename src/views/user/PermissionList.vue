@@ -133,16 +133,16 @@
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
-import { getMenuTree, type MenuItem } from '@/api/role'
+import { getPermissionTree, type PermissionItem } from '@/api/role'
 
 const searchForm = reactive({
   permissionName: '',
   status: undefined as number | undefined
 })
 
-const tableData = ref<MenuItem[]>([])
+const tableData = ref<PermissionItem[]>([])
 const loading = ref(false)
-const originalData = ref<MenuItem[]>([])
+const originalData = ref<PermissionItem[]>([])
 
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
@@ -233,7 +233,7 @@ const iconList = [
   'Paperclip'
 ]
 
-const filterData = (data: MenuItem[], keyword: string, status?: number): MenuItem[] => {
+const filterData = (data: PermissionItem[], keyword: string, status?: number): PermissionItem[] => {
   return data
     .filter(item => {
       const matchName = !keyword || item.permissionName.toLowerCase().includes(keyword.toLowerCase())
@@ -249,7 +249,7 @@ const filterData = (data: MenuItem[], keyword: string, status?: number): MenuIte
 const loadData = async () => {
   loading.value = true
   try {
-    const data = await getMenuTree()
+    const data = await getPermissionTree()
     originalData.value = data || []
     tableData.value = filterData(originalData.value, searchForm.permissionName, searchForm.status)
   } catch (error) {
@@ -269,7 +269,7 @@ const handleReset = () => {
   handleSearch()
 }
 
-const findParentName = (data: MenuItem[], parentId: number): string => {
+const findParentName = (data: PermissionItem[], parentId: number): string => {
   for (const item of data) {
     if (item.id === parentId) {
       return item.permissionName
@@ -282,7 +282,7 @@ const findParentName = (data: MenuItem[], parentId: number): string => {
   return ''
 }
 
-const handleAdd = (row?: MenuItem) => {
+const handleAdd = (row?: PermissionItem) => {
   dialogTitle.value = row ? '新增子菜单' : '新增权限'
   isEdit.value = false
   editId.value = undefined
@@ -299,7 +299,7 @@ const handleAdd = (row?: MenuItem) => {
   dialogVisible.value = true
 }
 
-const handleEdit = (row: MenuItem) => {
+const handleEdit = (row: PermissionItem) => {
   dialogTitle.value = '编辑菜单'
   isEdit.value = true
   editId.value = row.id
@@ -320,7 +320,7 @@ const generateId = (): number => {
   return Math.max(0, ...originalData.value.map(item => item.id)) + Math.floor(Math.random() * 1000) + 1
 }
 
-const addMenuToTree = (data: MenuItem[], newItem: MenuItem): MenuItem[] => {
+const addMenuToTree = (data: PermissionItem[], newItem: PermissionItem): PermissionItem[] => {
   if (newItem.parentId === 0) {
     return [...data, newItem]
   }
@@ -341,7 +341,7 @@ const addMenuToTree = (data: MenuItem[], newItem: MenuItem): MenuItem[] => {
   })
 }
 
-const updateMenuInTree = (data: MenuItem[], updatedItem: MenuItem): MenuItem[] => {
+const updateMenuInTree = (data: PermissionItem[], updatedItem: PermissionItem): PermissionItem[] => {
   return data.map(item => {
     if (item.id === updatedItem.id) {
       return { ...item, ...updatedItem }
@@ -356,7 +356,7 @@ const updateMenuInTree = (data: MenuItem[], updatedItem: MenuItem): MenuItem[] =
   })
 }
 
-const deleteMenuFromTree = (data: MenuItem[], id: number): MenuItem[] => {
+const deleteMenuFromTree = (data: PermissionItem[], id: number): PermissionItem[] => {
   return data
     .filter(item => item.id !== id)
     .map(item => {
@@ -375,7 +375,7 @@ const handleSubmit = async () => {
   submitLoading.value = true
   try {
     if (isEdit.value && editId.value) {
-      const updatedItem: MenuItem = {
+      const updatedItem: PermissionItem = {
         id: editId.value,
         permissionName: form.permissionName,
         permissionCode: form.permissionCode,
@@ -390,11 +390,11 @@ const handleSubmit = async () => {
       originalData.value = updateMenuInTree(originalData.value, updatedItem)
       ElMessage.success('更新成功')
     } else {
-      const newItem: MenuItem = {
+      const newItem: PermissionItem = {
         id: generateId(),
         permissionName: form.permissionName,
         permissionCode: form.permissionCode,
-        type: permissionType,
+        permissionType: form.permissionType,
         parentId: form.parentId,
         path: form.path,
         component: form.component,
@@ -435,7 +435,7 @@ const getTypeTagType = (type: number) => {
   return tagMap[type] || 'info'
 }
 
-const handleDelete = async (row: MenuItem) => {
+const handleDelete = async (row: PermissionItem) => {
   if (row.children && row.children.length > 0) {
     ElMessage.warning('请先删除子菜单')
     return

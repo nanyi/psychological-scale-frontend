@@ -37,8 +37,8 @@ export interface ExamStartRequest {
   scaleCode: string
 }
 
-export const getExamList = (params: { userId?: number; status?: number; current?: number; size?: number }) => {
-  return request.get<{ records: ExamRecord[]; total: number; current: number; size: number }>('/exam/list', { params })
+export const getExamRecordList = (params: { userId?: number; status?: number; current?: number; size?: number }) => {
+  return request.get<{ records: ExamRecord[]; total: number; current: number; size: number }>('/exam-record/list', { params })
 }
 
 export const getExamRecordDetail = (id: number) => {

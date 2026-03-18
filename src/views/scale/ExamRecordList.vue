@@ -103,7 +103,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-import { getExamList, getExamRecordDetail, startExam, submitExam, pauseExam, resumeExam, type ExamRecord } from '@/api/exam'
+import { getExamRecordList, getExamRecordDetail, startExam, submitExam, pauseExam, resumeExam, type ExamRecord } from '@/api/examRecord'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const searchForm = reactive({
@@ -137,7 +137,7 @@ const getStatusClass = (status: number) => {
 const loadData = async () => {
   loading.value = true
   try {
-    const data = await getExamList({
+    const data = await getExamRecordList({
       current: pagination.current,
       size: pagination.size,
       status: searchForm.status

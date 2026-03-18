@@ -19,7 +19,7 @@
             </template>
             <el-menu-item index="/scale">量表列表</el-menu-item>
             <el-menu-item index="/scale/category">分类管理</el-menu-item>
-            <el-menu-item index="/scale/exam">测评记录</el-menu-item>
+            <el-menu-item index="/scale/exam-records">测评记录</el-menu-item>
           </el-sub-menu>
           <el-sub-menu index="/user">
             <template #title>

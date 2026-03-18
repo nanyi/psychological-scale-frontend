@@ -66,6 +66,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '角色权限' }
       },
       {
+        path: 'user/menu',
+        name: 'Menu',
+        component: () => import('@/views/user/MenuList.vue'),
+        meta: { title: '菜单管理' }
+      },
+      {
         path: 'user/department',
         name: 'Department',
         component: () => import('@/views/user/DepartmentList.vue'),

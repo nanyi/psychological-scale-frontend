@@ -1,14 +1,14 @@
 <template>
   <div class="role-list">
     <h2 class="page-title">角色权限</h2>
-    
+
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }">
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="角色名称">
           <el-input v-model="searchForm.roleName" placeholder="请输入角色名称" clearable />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择" clearable>
+          <el-select v-model="searchForm.status" style="min-width: 100px;" placeholder="请选择" clearable>
             <el-option label="启用" :value="1" />
             <el-option label="禁用" :value="0" />
           </el-select>
@@ -24,7 +24,7 @@
       <div class="table-toolbar">
         <el-button type="primary" @click="handleAdd">新增角色</el-button>
       </div>
-      
+
       <el-table :data="tableData" stripe v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="roleName" label="角色名称" min-width="120" />
@@ -268,7 +268,7 @@ const handlePermission = async (row: RoleItem) => {
 
 const handlePermissionSubmit = async () => {
   if (!currentRoleId.value) return
-  
+
   permissionLoading.value = true
   try {
     const checkedNodes = (window as any).$refs.permissionTree?.getCheckedKeys() || []

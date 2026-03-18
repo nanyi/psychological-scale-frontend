@@ -1,11 +1,11 @@
 <template>
-  <div class="menu-list">
-    <h2 class="page-title">菜单管理</h2>
+  <div class="permission-list">
+    <h2 class="page-title">权限管理</h2>
 
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }">
       <el-form :inline="true" :model="searchForm" class="search-form">
-        <el-form-item label="菜单名称">
-          <el-input v-model="searchForm.menuName" placeholder="请输入菜单名称" clearable />
+        <el-form-item label="权限名称">
+          <el-input v-model="searchForm.permissionName" placeholder="请输入权限名称" clearable />
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="searchForm.status" style="min-width: 100px;" placeholder="请选择" clearable>
@@ -22,11 +22,11 @@
 
     <el-card shadow="never" :body-style="{ padding: 'var(--spacing-lg)' }" class="mt-md">
       <div class="table-toolbar">
-        <el-button type="primary" @click="handleAdd()">新增菜单</el-button>
+        <el-button type="primary" @click="handleAdd()">新增权限</el-button>
       </div>
 
       <el-table :data="tableData" row-key="id" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }" v-loading="loading">
-        <el-table-column prop="permissionName" label="菜单名称" min-width="180">
+        <el-table-column prop="permissionName" label="权限名称" min-width="180">
           <template #default="{ row }">
             <span>{{ row.permissionName }}</span>
           </template>
@@ -74,7 +74,7 @@
       destroy-on-close
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="父级菜单" v-if="form.parentId">
+        <el-form-item label="父级权限" v-if="form.parentId">
           <el-input :value="parentMenuName" disabled />
         </el-form-item>
         <el-form-item label="权限类型" prop="permissionType">
@@ -85,8 +85,8 @@
             <el-radio :value="4">数据</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="菜单名称" prop="permissionName">
-          <el-input v-model="form.permissionName" placeholder="请输入菜单名称" />
+        <el-form-item label="权限名称" prop="permissionName">
+          <el-input v-model="form.permissionName" placeholder="请输入权限名称" />
         </el-form-item>
         <el-form-item label="菜单编码" prop="permissionCode">
           <el-input v-model="form.permissionCode" placeholder="请输入菜单编码" :disabled="isEdit" />
@@ -136,7 +136,7 @@ import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { getMenuTree, type MenuItem } from '@/api/role'
 
 const searchForm = reactive({
-  menuName: '',
+  permissionName: '',
   status: undefined as number | undefined
 })
 
@@ -165,7 +165,7 @@ const form = reactive({
 })
 
 const rules = {
-  permissionName: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
+  permissionName: [{ required: true, message: '请输入权限名称', trigger: 'blur' }],
   permissionCode: [{ required: true, message: '请输入菜单编码', trigger: 'blur' }],
   permissionType: [{ required: true, message: '请选择权限类型', trigger: 'change' }]
 }
@@ -251,7 +251,7 @@ const loadData = async () => {
   try {
     const data = await getMenuTree()
     originalData.value = data || []
-    tableData.value = filterData(originalData.value, searchForm.menuName, searchForm.status)
+    tableData.value = filterData(originalData.value, searchForm.permissionName, searchForm.status)
   } catch (error) {
     console.error('加载菜单数据失败:', error)
   } finally {
@@ -260,11 +260,11 @@ const loadData = async () => {
 }
 
 const handleSearch = () => {
-  tableData.value = filterData(originalData.value, searchForm.menuName, searchForm.status)
+  tableData.value = filterData(originalData.value, searchForm.permissionName, searchForm.status)
 }
 
 const handleReset = () => {
-  searchForm.menuName = ''
+  searchForm.permissionName = ''
   searchForm.status = undefined
   handleSearch()
 }
@@ -283,7 +283,7 @@ const findParentName = (data: MenuItem[], parentId: number): string => {
 }
 
 const handleAdd = (row?: MenuItem) => {
-  dialogTitle.value = row ? '新增子菜单' : '新增菜单'
+  dialogTitle.value = row ? '新增子菜单' : '新增权限'
   isEdit.value = false
   editId.value = undefined
   form.parentId = row?.id || 0
@@ -407,7 +407,7 @@ const handleSubmit = async () => {
       ElMessage.success('创建成功')
     }
     dialogVisible.value = false
-    tableData.value = filterData(originalData.value, searchForm.menuName, searchForm.status)
+    tableData.value = filterData(originalData.value, searchForm.permissionName, searchForm.status)
   } catch (error: any) {
     ElMessage.error(error.message || '操作失败')
   } finally {
@@ -447,7 +447,7 @@ const handleDelete = async (row: MenuItem) => {
       cancelButtonText: '取消'
     })
     originalData.value = deleteMenuFromTree(originalData.value, row.id)
-    tableData.value = filterData(originalData.value, searchForm.menuName, searchForm.status)
+    tableData.value = filterData(originalData.value, searchForm.permissionName, searchForm.status)
     ElMessage.success('删除成功')
   } catch {
     // 用户取消
@@ -460,7 +460,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.menu-list {
+.permission-list {
   padding: 0;
 }
 

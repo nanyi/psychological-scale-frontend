@@ -27,7 +27,7 @@
             </template>
             <el-menu-item index="/user">用户列表</el-menu-item>
             <el-menu-item index="/user/role">角色权限</el-menu-item>
-            <el-menu-item index="/user/menu">菜单管理</el-menu-item>
+            <el-menu-item index="/user/permission">权限管理</el-menu-item>
             <el-menu-item index="/user/department">组织架构</el-menu-item>
             <el-menu-item index="/user/group">用户分组</el-menu-item>
           </el-sub-menu>

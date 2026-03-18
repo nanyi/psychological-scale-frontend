@@ -16,9 +16,15 @@
           <el-menu-item index="/scale">
             <span>量表管理</span>
           </el-menu-item>
-          <el-menu-item index="/user">
-            <span>用户管理</span>
-          </el-menu-item>
+          <el-sub-menu index="/user">
+            <template #title>
+              <span>用户管理</span>
+            </template>
+            <el-menu-item index="/user">用户列表</el-menu-item>
+            <el-menu-item index="/user/role">角色权限</el-menu-item>
+            <el-menu-item index="/user/department">组织架构</el-menu-item>
+            <el-menu-item index="/user/group">用户分组</el-menu-item>
+          </el-sub-menu>
           <el-menu-item index="/order">
             <span>订单管理</span>
           </el-menu-item>

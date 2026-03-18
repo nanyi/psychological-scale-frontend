@@ -45,7 +45,25 @@ const routes: RouteRecordRaw[] = [
         path: 'user',
         name: 'User',
         component: () => import('@/views/user/UserList.vue'),
-        meta: { title: '用户管理' }
+        meta: { title: '用户列表' }
+      },
+      {
+        path: 'user/role',
+        name: 'Role',
+        component: () => import('@/views/user/RoleList.vue'),
+        meta: { title: '角色权限' }
+      },
+      {
+        path: 'user/department',
+        name: 'Department',
+        component: () => import('@/views/user/DepartmentList.vue'),
+        meta: { title: '组织架构' }
+      },
+      {
+        path: 'user/group',
+        name: 'UserGroup',
+        component: () => import('@/views/user/UserGroupList.vue'),
+        meta: { title: '用户分组' }
       },
       {
         path: 'order',

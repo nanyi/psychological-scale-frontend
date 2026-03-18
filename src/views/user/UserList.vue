@@ -55,8 +55,9 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="注册时间" width="180" />
-        <el-table-column label="操作" width="150" fixed="right">
+        <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }">
+            <el-button type="primary" link @click="handleAssignRole(row)">分配角色</el-button>
             <el-button type="primary" link @click="handleEdit(row)">编辑</el-button>
             <el-button
               :type="row.status === 1 ? 'warning' : 'success'"
@@ -122,6 +123,35 @@
         <el-button type="primary" @click="handleSubmit" :loading="submitLoading">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 分配角色对话框 -->
+    <el-dialog
+      v-model="roleDialogVisible"
+      title="分配角色"
+      width="500px"
+      destroy-on-close
+    >
+      <div class="role-dialog-content">
+        <div class="current-user">
+          <span class="label">当前用户：</span>
+          <span class="username">{{ currentUser?.username }}</span>
+        </div>
+        <el-divider />
+        <div class="role-selection">
+          <div class="selection-title">选择角色（支持多选）</div>
+          <el-checkbox-group v-model="selectedRoleIds" class="role-checkbox-group">
+            <el-checkbox v-for="role in allRoles" :key="role.id" :value="role.id" class="role-checkbox">
+              {{ role.roleName }}
+            </el-checkbox>
+          </el-checkbox-group>
+          <el-empty v-if="allRoles.length === 0" description="暂无可用角色" :image-size="60" />
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="roleDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveRoles" :loading="roleLoading">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -129,6 +159,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { getUserList, updateUser, updateUserStatus, deleteUser, createUser, type UserItem } from '@/api/user'
+import { getRoleAll, assignRole, removeRole, getUserRoles, type RoleItem } from '@/api/role'
 
 const defaultAvatar = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
 
@@ -171,6 +202,14 @@ const rules = {
   phone: [{ pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }],
   email: [{ type: 'email', message: '邮箱格式不正确', trigger: 'blur' }]
 }
+
+// 角色分配相关
+const roleDialogVisible = ref(false)
+const roleLoading = ref(false)
+const currentUser = ref<UserItem | null>(null)
+const allRoles = ref<RoleItem[]>([])
+const selectedRoleIds = ref<number[]>([])
+const userAssignedRoles = ref<RoleItem[]>([])
 
 const loadData = async () => {
   loading.value = true
@@ -304,6 +343,53 @@ const handleExport = () => {
   ElMessage.info('导出功能开发中')
 }
 
+const handleAssignRole = async (row: UserItem) => {
+  currentUser.value = row
+  roleDialogVisible.value = true
+  
+  try {
+    const [rolesData, userRolesData] = await Promise.all([
+      getRoleAll(),
+      getUserRoles(row.id)
+    ])
+    allRoles.value = rolesData
+    userAssignedRoles.value = userRolesData
+    selectedRoleIds.value = userRolesData.map(r => r.id)
+  } catch (error) {
+    console.error('加载角色数据失败:', error)
+    ElMessage.error('加载角色数据失败')
+  }
+}
+
+const handleSaveRoles = async () => {
+  if (!currentUser.value) return
+  
+  roleLoading.value = true
+  try {
+    const userId = currentUser.value.id
+    const currentIds = selectedRoleIds.value
+    const previousIds = userAssignedRoles.value.map(r => r.id)
+    
+    const toAdd = currentIds.filter(id => !previousIds.includes(id))
+    const toRemove = previousIds.filter(id => !currentIds.includes(id))
+    
+    for (const roleId of toAdd) {
+      await assignRole(userId, roleId)
+    }
+    for (const roleId of toRemove) {
+      await removeRole(userId, roleId)
+    }
+    
+    ElMessage.success('角色分配保存成功')
+    roleDialogVisible.value = false
+  } catch (error) {
+    console.error('保存角色失败:', error)
+    ElMessage.error('保存角色失败')
+  } finally {
+    roleLoading.value = false
+  }
+}
+
 loadData()
 </script>
 
@@ -329,5 +415,47 @@ loadData()
 
 .mt-md {
   margin-top: var(--spacing-md);
+}
+
+.role-dialog-content {
+  padding: var(--spacing-sm) 0;
+}
+
+.current-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.current-user .label {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.current-user .username {
+  color: var(--color-primary);
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.role-selection {
+  padding: var(--spacing-sm) 0;
+}
+
+.selection-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+}
+
+.role-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.role-checkbox {
+  margin-right: 0;
+  height: auto;
 }
 </style>

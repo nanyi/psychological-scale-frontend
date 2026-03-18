@@ -11,6 +11,20 @@ export interface RoleItem {
   permissions?: string[]
 }
 
+export interface MenuItem {
+  id: number
+  permissionName: string
+  permissionCode: string
+  type: number
+  parentId: number
+  path?: string
+  component?: string
+  icon?: string
+  sortOrder: number
+  status: number
+  children?: MenuItem[]
+}
+
 export interface PermissionItem {
   id: number
   permissionName: string
@@ -58,4 +72,24 @@ export const getPermissionsByRole = (roleId: number) => {
 
 export const assignPermissions = (roleId: number, permissions: string[]) => {
   return request.post(`/role/permissions/${roleId}`, permissions)
+}
+
+export const getMenuTree = () => {
+  return request.get<MenuItem[]>('/permission/tree')
+}
+
+export const getMenuList = () => {
+  return request.get<MenuItem[]>('/permission/list')
+}
+
+export const assignRole = (userId: number, roleId: number) => {
+  return request.post('/role/assign', null, { params: { userId, roleId } })
+}
+
+export const removeRole = (userId: number, roleId: number) => {
+  return request.delete('/role/remove', { params: { userId, roleId } })
+}
+
+export const getUserRoles = (userId: number) => {
+  return request.get<RoleItem[]>(`/role/by-user/${userId}`)
 }

@@ -39,16 +39,16 @@
             <span v-else class="text-gray">-</span>
           </template>
         </el-table-column>
-        <el-table-column prop="type" label="类型" width="80" align="center">
+        <el-table-column prop="type" label="类型" width="100" align="center">
           <template #default="{ row }">
-            <el-tag :type="row.type === 1 ? 'warning' : 'success'" size="small">
-              {{ row.type === 1 ? '目录' : '菜单' }}
+            <el-tag :type="getTypeTagType(row.permissionType)" size="small">
+              {{ getTypeName(row.permissionType) }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="path" label="路由路径" min-width="150" show-overflow-tooltip />
         <el-table-column prop="component" label="组件" min-width="150" show-overflow-tooltip />
-        <el-table-column prop="sortOrder" label="排序" width="80" align="center" />
+        <el-table-column prop="sort" label="排序" width="80" align="center" />
         <el-table-column prop="status" label="状态" width="80" align="center">
           <template #default="{ row }">
             <span :class="['tag', row.status === 1 ? 'tag-success' : 'tag-error']">
@@ -77,10 +77,12 @@
         <el-form-item label="父级菜单" v-if="form.parentId">
           <el-input :value="parentMenuName" disabled />
         </el-form-item>
-        <el-form-item label="菜单类型" prop="type">
-          <el-radio-group v-model="form.type">
-            <el-radio :value="1">目录</el-radio>
+        <el-form-item label="权限类型" prop="permissionType">
+          <el-radio-group v-model="form.permissionType">
+            <el-radio :value="1">菜单目录</el-radio>
             <el-radio :value="2">菜单</el-radio>
+            <el-radio :value="3">功能</el-radio>
+            <el-radio :value="4">数据</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="菜单名称" prop="permissionName">
@@ -104,14 +106,14 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="路由路径" prop="path" v-if="form.type === 2">
+        <el-form-item label="路由路径" prop="path" v-if="permissionType === 2">
           <el-input v-model="form.path" placeholder="请输入路由路径，如 /user" />
         </el-form-item>
-        <el-form-item label="组件路径" prop="component" v-if="form.type === 2">
+        <el-form-item label="组件路径" prop="component" v-if="permissionType === 2">
           <el-input v-model="form.component" placeholder="请输入组件路径，如 user/UserList" />
         </el-form-item>
-        <el-form-item label="排序" prop="sortOrder">
-          <el-input-number v-model="form.sortOrder" :min="0" :max="9999" />
+        <el-form-item label="排序" prop="sort">
+          <el-input-number v-model="form.sort" :min="0" :max="9999" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
@@ -152,20 +154,20 @@ const parentMenuName = ref('')
 
 const form = reactive({
   parentId: 0,
-  type: 2,
+  permissionType: 2,
   permissionName: '',
   permissionCode: '',
   path: '',
   component: '',
   icon: '',
-  sortOrder: 0,
+  sort: 0,
   status: 1
 })
 
 const rules = {
   permissionName: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
   permissionCode: [{ required: true, message: '请输入菜单编码', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择菜单类型', trigger: 'change' }]
+  permissionType: [{ required: true, message: '请选择权限类型', trigger: 'change' }]
 }
 
 const iconList = [
@@ -286,13 +288,13 @@ const handleAdd = (row?: MenuItem) => {
   editId.value = undefined
   form.parentId = row?.id || 0
   parentMenuName.value = row ? row.permissionName : ''
-  form.type = row ? 2 : 1
+  permissionType = row ? 2 : 1
   form.permissionName = ''
   form.permissionCode = ''
   form.path = ''
   form.component = ''
   form.icon = ''
-  form.sortOrder = 0
+  form.sort = 0
   form.status = 1
   dialogVisible.value = true
 }
@@ -303,13 +305,13 @@ const handleEdit = (row: MenuItem) => {
   editId.value = row.id
   form.parentId = row.parentId
   parentMenuName.value = findParentName(originalData.value, row.parentId)
-  form.type = row.type
+  form.permissionType = row.permissionType || row.type
   form.permissionName = row.permissionName
   form.permissionCode = row.permissionCode
   form.path = row.path || ''
   form.component = row.component || ''
   form.icon = row.icon || ''
-  form.sortOrder = row.sortOrder
+  form.sort = row.sort
   form.status = row.status
   dialogVisible.value = true
 }
@@ -377,12 +379,12 @@ const handleSubmit = async () => {
         id: editId.value,
         permissionName: form.permissionName,
         permissionCode: form.permissionCode,
-        type: form.type,
+        type: permissionType,
         parentId: form.parentId,
         path: form.path,
         component: form.component,
         icon: form.icon,
-        sortOrder: form.sortOrder,
+        sort: form.sort,
         status: form.status
       }
       originalData.value = updateMenuInTree(originalData.value, updatedItem)
@@ -392,12 +394,12 @@ const handleSubmit = async () => {
         id: generateId(),
         permissionName: form.permissionName,
         permissionCode: form.permissionCode,
-        type: form.type,
+        type: permissionType,
         parentId: form.parentId,
         path: form.path,
         component: form.component,
         icon: form.icon,
-        sortOrder: form.sortOrder,
+        sort: form.sort,
         status: form.status,
         children: []
       }
@@ -411,6 +413,26 @@ const handleSubmit = async () => {
   } finally {
     submitLoading.value = false
   }
+}
+
+const getTypeName = (type: number) => {
+  const typeMap: Record<number, string> = {
+    1: '菜单目录',
+    2: '菜单',
+    3: '功能',
+    4: '数据'
+  }
+  return typeMap[type] || '未知'
+}
+
+const getTypeTagType = (type: number) => {
+  const tagMap: Record<number, string> = {
+    1: 'warning',
+    2: 'success',
+    3: 'primary',
+    4: 'info'
+  }
+  return tagMap[type] || 'info'
 }
 
 const handleDelete = async (row: MenuItem) => {

@@ -106,10 +106,11 @@
           <el-input v-model="form.email" placeholder="请输入邮箱" />
         </el-form-item>
         <el-form-item label="角色" prop="userType">
-          <el-select v-model="form.userType" placeholder="请选择角色">
-            <el-option label="普通用户" :value="2" />
-            <el-option label="管理员" :value="1" />
-          </el-select>
+          <el-checkbox-group v-model="selectedRoleIds">
+            <el-checkbox v-for="role in allRoles" :key="role.id" :value="role.id">
+              {{ role.roleName }}
+            </el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
         <el-form-item v-if="isEdit" label="状态" prop="status">
           <el-radio-group v-model="form.status">
@@ -209,6 +210,7 @@ const roleLoading = ref(false)
 const currentUser = ref<UserItem | null>(null)
 const allRoles = ref<RoleItem[]>([])
 const selectedRoleIds = ref<number[]>([])
+const previousRoleIds = ref<number[]>([])
 const userAssignedRoles = ref<RoleItem[]>([])
 
 const loadData = async () => {
@@ -258,10 +260,12 @@ const handleAdd = () => {
   form.email = ''
   form.userType = 2
   form.status = 1
+  selectedRoleIds.value = []
+  loadAllRoles()
   dialogVisible.value = true
 }
 
-const handleEdit = (row: UserItem) => {
+const handleEdit = async (row: UserItem) => {
   dialogTitle.value = '编辑用户'
   isEdit.value = true
   editId.value = row.id
@@ -271,6 +275,20 @@ const handleEdit = (row: UserItem) => {
   form.email = row.email || ''
   form.userType = row.userType
   form.status = row.status
+  
+  try {
+    const [rolesData, userRolesData] = await Promise.all([
+      getRoleAll(),
+      getUserRoles(row.id)
+    ])
+    allRoles.value = rolesData
+    previousRoleIds.value = userRolesData.map(r => r.id)
+    selectedRoleIds.value = [...previousRoleIds.value]
+  } catch (error) {
+    console.error('加载角色数据失败:', error)
+    ElMessage.error('加载角色数据失败')
+  }
+  
   dialogVisible.value = true
 }
 
@@ -279,6 +297,7 @@ const handleSubmit = async () => {
 
   submitLoading.value = true
   try {
+    let newUserId: number | undefined
     if (isEdit.value && editId.value) {
       await updateUser(editId.value, {
         username: form.username,
@@ -288,7 +307,7 @@ const handleSubmit = async () => {
         userType: form.userType,
         status: form.status
       })
-      ElMessage.success('更新成功')
+      newUserId = editId.value
     } else {
       await createUser({
         username: form.username,
@@ -299,8 +318,24 @@ const handleSubmit = async () => {
         userType: form.userType,
         status: 1
       })
-      ElMessage.success('创建成功')
+      newUserId = undefined
     }
+    
+    if (newUserId && isEdit.value) {
+      const currentIds = selectedRoleIds.value
+      const prevIds = previousRoleIds.value
+      const toAdd = currentIds.filter(id => !prevIds.includes(id))
+      const toRemove = prevIds.filter(id => !currentIds.includes(id))
+      
+      for (const roleId of toAdd) {
+        await assignRole(newUserId, roleId)
+      }
+      for (const roleId of toRemove) {
+        await removeRole(newUserId, roleId)
+      }
+    }
+    
+    ElMessage.success(isEdit.value ? '更新成功' : '创建成功')
     dialogVisible.value = false
     loadData()
   } catch (error: any) {
@@ -341,6 +376,15 @@ const handleDelete = async (row: UserItem) => {
 
 const handleExport = () => {
   ElMessage.info('导出功能开发中')
+}
+
+const loadAllRoles = async () => {
+  try {
+    const rolesData = await getRoleAll()
+    allRoles.value = rolesData
+  } catch (error) {
+    console.error('加载角色数据失败:', error)
+  }
 }
 
 const handleAssignRole = async (row: UserItem) => {

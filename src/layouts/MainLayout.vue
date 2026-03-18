@@ -132,39 +132,10 @@ const handleCommand = (command: string) => {
   margin: 0;
 }
 
-.el-menu {
-  border-right: none;
-  background-color: var(--color-gray-800);
-}
-
-.el-menu-item {
-  color: #E5E7EB;
-  height: 48px;
-  line-height: 48px;
-  margin: 4px 8px;
-  border-radius: var(--border-radius-md);
-}
-
-.el-sub-menu__title {
-  color: #FFFFFF !important;
-  font-weight: 500;
-}
-
-.el-sub-menu__title:hover {
-  background-color: var(--color-gray-700) !important;
-  color: #fff !important;
-}
-
-.el-menu-item:hover {
-  background-color: var(--color-gray-700) !important;
-  color: #fff;
-}
-
 .el-menu-item.is-active {
   background-color: var(--color-primary-500) !important;
   color: #fff;
 }
-
 .el-header {
   background-color: #fff;
   box-shadow: var(--shadow-sm);

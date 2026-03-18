@@ -81,9 +81,12 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { getScaleList, type ScaleItem } from '@/api/scale'
 import { getCategoryAll, type ScaleCategory } from '@/api/scaleCategory'
 import { ElMessage, ElMessageBox } from 'element-plus'
+
+const router = useRouter()
 
 const searchForm = reactive({
   name: '',
@@ -150,7 +153,7 @@ const handleEdit = (row: ScaleItem) => {
 }
 
 const handleQuestions = (row: ScaleItem) => {
-  ElMessage.info(`管理题目：${row.scaleName}`)
+  router.push(`/scale/questions/${row.id}`)
 }
 
 const handleDelete = async (row: ScaleItem) => {

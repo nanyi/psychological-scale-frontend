@@ -51,6 +51,9 @@
             <el-menu-item index="/thirdparty/sync-logs">同步日志</el-menu-item>
             <el-menu-item index="/thirdparty/monitor">服务监控</el-menu-item>
           </el-sub-menu>
+          <el-menu-item index="/system/setting">
+            <span>系统设置</span>
+          </el-menu-item>
         </el-menu>
       </el-aside>
       <el-container>

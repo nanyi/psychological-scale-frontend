@@ -77,6 +77,7 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
 import { getOrderList, type OrderItem } from '@/api/order'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const searchForm = reactive({
@@ -94,12 +95,14 @@ const pagination = reactive({
 
 const tableData = ref<OrderItem[]>([])
 const loading = ref(false)
+const router = useRouter()
 
 const statusMap: Record<number, string> = {
   0: '待支付',
   1: '已支付',
-  2: '已完成',
-  3: '已退款'
+  2: '已取消',
+  3: '已退款',
+  4: '部分退款'
 }
 
 const getStatusName = (status: number) => {
@@ -154,7 +157,7 @@ const handlePageChange = (page: number) => {
 }
 
 const handleDetail = (row: OrderItem) => {
-  ElMessage.info(`订单详情：${row.orderNo}`)
+  router.push(`/order/detail/${row.id}`)
 }
 
 const handleRefund = async (row: OrderItem) => {

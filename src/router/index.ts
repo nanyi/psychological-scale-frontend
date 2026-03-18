@@ -126,6 +126,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '服务监控' }
       },
       {
+        path: 'system/setting',
+        name: 'SystemSetting',
+        component: () => import('@/views/system/SystemSetting.vue'),
+        meta: { title: '系统设置' }
+      },
+      {
         path: '/:pathMatch(.*)*',
         redirect: '/dashboard'
       }

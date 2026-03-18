@@ -13,9 +13,14 @@
           <el-menu-item index="/dashboard">
             <span>数据驾驶舱</span>
           </el-menu-item>
-          <el-menu-item index="/scale">
-            <span>量表管理</span>
-          </el-menu-item>
+          <el-sub-menu index="/scale">
+            <template #title>
+              <span>量表管理</span>
+            </template>
+            <el-menu-item index="/scale">量表列表</el-menu-item>
+            <el-menu-item index="/scale/category">分类管理</el-menu-item>
+            <el-menu-item index="/scale/exam">测评记录</el-menu-item>
+          </el-sub-menu>
           <el-sub-menu index="/user">
             <template #title>
               <span>用户管理</span>
@@ -25,15 +30,27 @@
             <el-menu-item index="/user/department">组织架构</el-menu-item>
             <el-menu-item index="/user/group">用户分组</el-menu-item>
           </el-sub-menu>
-          <el-menu-item index="/order">
-            <span>订单管理</span>
-          </el-menu-item>
+          <el-sub-menu index="/order">
+            <template #title>
+              <span>订单管理</span>
+            </template>
+            <el-menu-item index="/order">订单列表</el-menu-item>
+            <el-menu-item index="/order/enterprise-quota">企业配额</el-menu-item>
+          </el-sub-menu>
           <el-menu-item index="/report">
             <span>报告管理</span>
           </el-menu-item>
           <el-menu-item index="/analysis">
             <span>数据分析</span>
           </el-menu-item>
+          <el-sub-menu index="/thirdparty">
+            <template #title>
+              <span>第三方服务</span>
+            </template>
+            <el-menu-item index="/thirdparty/config">API配置</el-menu-item>
+            <el-menu-item index="/thirdparty/sync-logs">同步日志</el-menu-item>
+            <el-menu-item index="/thirdparty/monitor">服务监控</el-menu-item>
+          </el-sub-menu>
         </el-menu>
       </el-aside>
       <el-container>

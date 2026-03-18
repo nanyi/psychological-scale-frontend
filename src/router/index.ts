@@ -42,6 +42,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '量表详情' }
       },
       {
+        path: 'scale/questions/:id',
+        name: 'ScaleQuestions',
+        component: () => import('@/views/scale/ScaleQuestionList.vue'),
+        meta: { title: '题目管理' }
+      },
+      {
+        path: 'scale/exam',
+        name: 'ExamList',
+        component: () => import('@/views/scale/ExamList.vue'),
+        meta: { title: '测评记录' }
+      },
+      {
         path: 'user',
         name: 'User',
         component: () => import('@/views/user/UserList.vue'),
@@ -72,6 +84,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '订单管理' }
       },
       {
+        path: 'order/enterprise-quota',
+        name: 'EnterpriseQuota',
+        component: () => import('@/views/order/EnterpriseQuotaList.vue'),
+        meta: { title: '企业配额' }
+      },
+      {
+        path: 'order/detail/:id',
+        name: 'OrderDetail',
+        component: () => import('@/views/order/OrderDetail.vue'),
+        meta: { title: '订单详情' }
+      },
+      {
         path: 'report',
         name: 'Report',
         component: () => import('@/views/report/ReportList.vue'),
@@ -82,6 +106,24 @@ const routes: RouteRecordRaw[] = [
         name: 'Analysis',
         component: () => import('@/views/analysis/Analysis.vue'),
         meta: { title: '数据分析' }
+      },
+      {
+        path: 'thirdparty/config',
+        name: 'ThirdPartyConfig',
+        component: () => import('@/views/thirdparty/ThirdPartyConfigList.vue'),
+        meta: { title: '第三方配置' }
+      },
+      {
+        path: 'thirdparty/sync-logs',
+        name: 'SyncLogList',
+        component: () => import('@/views/thirdparty/SyncLogList.vue'),
+        meta: { title: '同步日志' }
+      },
+      {
+        path: 'thirdparty/monitor',
+        name: 'ServiceMonitor',
+        component: () => import('@/views/thirdparty/ServiceMonitor.vue'),
+        meta: { title: '服务监控' }
       },
       {
         path: '/:pathMatch(.*)*',

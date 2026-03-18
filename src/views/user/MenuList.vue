@@ -106,10 +106,10 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="路由路径" prop="path" v-if="permissionType === 2">
+        <el-form-item label="路由路径" prop="path" v-if="form.permissionType === 2">
           <el-input v-model="form.path" placeholder="请输入路由路径，如 /user" />
         </el-form-item>
-        <el-form-item label="组件路径" prop="component" v-if="permissionType === 2">
+        <el-form-item label="组件路径" prop="component" v-if="form.permissionType === 2">
           <el-input v-model="form.component" placeholder="请输入组件路径，如 user/UserList" />
         </el-form-item>
         <el-form-item label="排序" prop="sort">
